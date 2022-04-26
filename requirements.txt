@@ -1,0 +1,10 @@
+luma.core
+luma.oled
+Encoder
+python-mpd2
+pillow
+pre-commit
+RPi.GPIO
+smbus2
+pytest
+pytest-mock
