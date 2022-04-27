@@ -75,7 +75,7 @@ class Status:
     def from_client(cls, client: MPDClient) -> Status:
         status = client.status()
         return cls(
-            volume=int(status["volume"]),
+            volume=int(status.get("volume", 0)),
             repeat=int(status["repeat"]),
             random=int(status["random"]),
             single=int(status["single"]),
@@ -84,6 +84,36 @@ class Status:
             playlistlength=int(status["playlistlength"]),
             mixrampdb=float(status["mixrampdb"]),
             state=str(status["state"]),
+        )
+
+
+@dataclass
+class SongInfo:
+    file: Path
+    album: str
+    artist: str
+    date: int
+    genre: str
+    title: str
+    track: int
+    duration: float
+    pos: float
+    id: str
+
+    @classmethod
+    def from_client(cls, client: MPDClient) -> SongInfo:
+        song_info: dict = client.currentsong()
+        return cls(
+            file=Path(song_info.get("file", ".")),
+            album=song_info.get("album", ""),
+            artist=song_info.get("artist", ""),
+            date=song_info.get("date", 0),
+            genre=song_info.get("genre", "unknown"),
+            title=song_info.get("title", "unknown"),
+            track=song_info.get("track", 0),
+            duration=song_info.get("duration", 0),
+            pos=song_info.get("pos", 0),
+            id=song_info.get("id", "1")
         )
 
 
@@ -184,3 +214,7 @@ class Mpd:
     def status(self) -> Status:
         with self._mpd_wrapper as client:
             return Status.from_client(client)
+
+    def current_song(self) -> SongInfo:
+        with self._mpd_wrapper as client:
+            return SongInfo.from_client(client)

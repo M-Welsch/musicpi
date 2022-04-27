@@ -19,6 +19,7 @@ LOG = logging.getLogger(Path(__file__).name)
 class Pins:
     enc = {"a": 27, "b": 17}  # Pin 13  # Pin 11
     buttons = {"enc_sw": 22, "button": 4}  # Pin 15  # Pin 7
+    leds = {"green": 23}  # pin 16
 
 
 class PinInterface:
@@ -40,6 +41,7 @@ class PinInterface:
         self._setup_encoder_pins()
         # GPIO init happens in Encoder(...)
         self._setup_buttons()
+        self._setup_leds()
 
     @staticmethod
     def _setup_buttons() -> None:
@@ -52,6 +54,11 @@ class PinInterface:
         for enc_pin in Pins.enc.values():
             GPIO.setup(enc_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+    @staticmethod
+    def _setup_leds() -> None:
+        for led_pin in Pins.leds.values():
+            GPIO.setup(led_pin, GPIO.OUT)
+
     def encoder_value(self) -> int:
         return self._encoder.read()
 
@@ -60,6 +67,15 @@ class PinInterface:
 
     def encoder_sw_pressed(self) -> bool:
         return not bool(GPIO.input(Pins.buttons["enc_sw"]))
+
+    def led_on(self) -> None:
+        GPIO.output(Pins.leds["green"], GPIO.HIGH)
+
+    def led_off(self) -> None:
+        GPIO.output(Pins.leds["green"], GPIO.LOW)
+
+    def led_state(self) -> bool:
+        return bool(GPIO.input(Pins.leds["green"]))
 
     def cleanup(self) -> None:
         GPIO.cleanup()
@@ -79,3 +95,17 @@ class Button:
 
     def pressed(self) -> bool:
         return self._pin_interface.button_pressed()
+
+
+class Led:
+    def __init__(self) -> None:
+        self._pin_interface = PinInterface.global_instance()
+
+    def on(self) -> None:
+        self._pin_interface.led_on()
+
+    def off(self) -> None:
+        self._pin_interface.led_off()
+
+    def state(self) -> bool:
+        return self._pin_interface.led_state()
