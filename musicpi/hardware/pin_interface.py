@@ -1,14 +1,19 @@
 from __future__ import annotations
+
+from platform import machine
 from time import sleep
 from typing import Optional
 
-from Encoder import Encoder
+if not machine() in ["armv6l", "armv7l"]:
+    print("Not on Single Board Computer. Importing Mockup for RPi.GPIO")
+    import sys
+    from importlib import import_module
 
-try:
-    import RPi.GPIO as GPIO
-except RuntimeError:
-    print("RPi.GPIO is not available. Switching to mockup mode")
-    from test.mockups.mockupgpio import GPIO
+    sys.modules["RPi"] = import_module("test.mockups.RPi_mock")
+
+from Encoder import Encoder
+import RPi.GPIO as GPIO
+
 
 import logging
 from pathlib import Path

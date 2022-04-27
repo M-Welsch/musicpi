@@ -1,0 +1,9 @@
+logic:
+  mpd:
+    host: localhost
+    port: 6600
+    socket: /var/run/mpd/socket
+local_music_collection:
+  location: /home/pi/Music
+log:
+  path: log

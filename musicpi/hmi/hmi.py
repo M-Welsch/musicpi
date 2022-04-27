@@ -1,0 +1,2 @@
+class Hmi:
+    pass
