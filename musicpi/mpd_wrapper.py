@@ -113,7 +113,7 @@ class SongInfo:
             track=song_info.get("track", 0),
             duration=song_info.get("duration", 0),
             pos=song_info.get("pos", 0),
-            id=song_info.get("id", "1")
+            id=song_info.get("id", "1"),
         )
 
 

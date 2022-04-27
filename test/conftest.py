@@ -4,7 +4,7 @@ import sys
 import pytest
 
 
-def pytest_configure():
+def pytest_configure() -> None:
     stdout_handler = logging.StreamHandler(sys.stdout)
     file_handler = logging.FileHandler(filename="test_logging_current.log")
     logging.basicConfig(

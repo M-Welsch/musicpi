@@ -33,17 +33,8 @@ def setup(pin: int = 0, direction: int = 0, pull_up_down: int = 0) -> None:
 
 
 def input(pin: IntEnum) -> bool:
-    global PINS_N_SENSOR_DOCKED_OCCURRENCES, PINS_N_SENSOR_UNDOCKED_OCCURRENCES
-    if pin == Pins.nsensor_docked:
-        PINS_N_SENSOR_DOCKED_OCCURRENCES += 1
-        return HIGH if PINS_N_SENSOR_DOCKED_OCCURRENCES < DOCKED_AFTER_QUERIES else LOW
-    elif pin == Pins.nsensor_undocked:
-        PINS_N_SENSOR_UNDOCKED_OCCURRENCES += 1
-        return HIGH if PINS_N_SENSOR_UNDOCKED_OCCURRENCES < UNDOCKED_AFTER_QUERIES else LOW
-    else:
-        return False
+    ...
 
 
 def output(pin: IntEnum, value: IntEnum) -> None:
-    if pin == Pins.stepper_step:
-        sleep(0.1)
+    ...

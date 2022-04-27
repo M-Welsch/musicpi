@@ -13,5 +13,5 @@ def display() -> Generator[Display, None, None]:
 
 
 @pytest.mark.onraspi
-def test_display_init(display):
+def test_display_init(display: Display) -> None:
     display.write_teststuff_to_displays()

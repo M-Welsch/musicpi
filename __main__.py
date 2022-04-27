@@ -5,6 +5,7 @@ from platform import machine
 
 import yaml
 
+from musicpi.hmi.hmi import Hmi
 from musicpi.musicpi_application import MusicPi
 
 LOG = logging.getLogger(__name__)
@@ -29,11 +30,13 @@ if __name__ == "__main__":
     if machine() in ["armv6l", "armv7l"]:
         print("Raspi")
         from musicpi.hmi.hmi_arm import HmiArm
-        h = HmiArm()
+
+        h: Hmi = HmiArm()
     elif machine() == "x86_64":
         print("Laptop")
         from musicpi.hmi.hmi_x86_64 import HmiX86X64
-        h = HmiX86X64()
+
+        h: Hmi = HmiX86X64()  # type: ignore
     else:
         raise ValueError("I don't know who I am! Problably the hardware platform is not supported (yet)!")
     MusicPi(hmi=h, cfg=cfg.get("logic", {}))

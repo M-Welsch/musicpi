@@ -8,11 +8,11 @@ from PIL import ImageDraw
 
 
 class Display:
-    def __init__(self):
+    def __init__(self) -> None:
         serial0 = i2c(port=1, address=0x3C)
         self._display0 = sh1106(serial0)
 
-    def write_teststuff_to_displays(self):
+    def write_teststuff_to_displays(self) -> None:
         with canvas(self._display0) as draw, canvas(self._display0) as draw:
             print(f"Type(draw) = {type(draw)} <><<<<<<<<<<<<<<<<<<")
             draw.text((0, 0), "Hi There", fill="white")
@@ -23,5 +23,5 @@ class Display:
     def dis0(self) -> ImageDraw.Draw:
         return self._display0
 
-    def run_for_fun(self):
+    def run_for_fun(self) -> None:
         print("hey")

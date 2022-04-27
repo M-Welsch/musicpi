@@ -1,6 +1,6 @@
-from musicpi.hmi import Hmi
-from musicpi.hardware.pin_interface import Button, RotaryEncoder, Led
 from musicpi.hardware.display import Display
+from musicpi.hardware.pin_interface import Button, Led, RotaryEncoder
+from musicpi.hmi.hmi import Hmi
 
 
 class HmiArm(Hmi):

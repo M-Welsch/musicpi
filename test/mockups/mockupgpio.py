@@ -24,7 +24,7 @@ class GPIO:
             print("GPIO Mockup: Setting output on pin {} to {}".format(pin, state))
 
     @staticmethod
-    def add_event_detect(*args, **kwargs):
+    def add_event_detect(*args, **kwargs) -> None:  # type: ignore
         ...
 
     BOARD = "Physical Pinout"

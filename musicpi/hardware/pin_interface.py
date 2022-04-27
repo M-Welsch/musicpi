@@ -11,12 +11,11 @@ if not machine() in ["armv6l", "armv7l"]:
 
     sys.modules["RPi"] = import_module("test.mockups.RPi_mock")
 
-from Encoder import Encoder
-import RPi.GPIO as GPIO
-
-
 import logging
 from pathlib import Path
+
+import RPi.GPIO as GPIO
+from Encoder import Encoder
 
 LOG = logging.getLogger(Path(__file__).name)
 
@@ -32,13 +31,14 @@ class PinInterface:
 
     @staticmethod
     def global_instance() -> PinInterface:
-        """ Static access method. """
+        """Static access method."""
         if PinInterface.__instance is None:
             PinInterface()
+        assert isinstance(PinInterface.__instance, PinInterface)
         return PinInterface.__instance
 
     def __init__(self) -> None:
-        """ Virtually private constructor. """
+        """Virtually private constructor."""
         if PinInterface.__instance is not None:
             raise RuntimeError("This class is a singleton. Use global_instance() instead!")
         PinInterface.__instance = self
@@ -65,7 +65,7 @@ class PinInterface:
             GPIO.setup(led_pin, GPIO.OUT)
 
     def encoder_value(self) -> int:
-        return self._encoder.read()
+        return int(self._encoder.read())
 
     def button_pressed(self) -> bool:
         return not bool(GPIO.input(Pins.buttons["button"]))
