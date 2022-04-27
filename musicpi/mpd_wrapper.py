@@ -70,6 +70,7 @@ class Status:
     playlistlength: int
     mixrampdb: float
     state: str
+    playing: bool
 
     @classmethod
     def from_client(cls, client: MPDClient) -> Status:
@@ -84,6 +85,7 @@ class Status:
             playlistlength=int(status["playlistlength"]),
             mixrampdb=float(status["mixrampdb"]),
             state=str(status["state"]),
+            playing=(not status["state"] == "pause"),
         )
 
 
