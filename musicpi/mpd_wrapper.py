@@ -62,10 +62,10 @@ class Stats:
 @dataclass
 class Status:
     volume: int
-    repeat: int
-    random: int
-    single: int
-    consume: int
+    repeat: bool
+    random: bool
+    single: bool
+    consume: bool
     playlist: int
     playlistlength: int
     mixrampdb: float
@@ -77,15 +77,15 @@ class Status:
         status = client.status()
         return cls(
             volume=int(status.get("volume", 0)),
-            repeat=int(status["repeat"]),
-            random=int(status["random"]),
-            single=int(status["single"]),
-            consume=int(status["consume"]),
+            repeat=bool(status["repeat"] == '1'),
+            random=bool(status["random"] == '1'),
+            single=bool(status["single"] == '1'),
+            consume=bool(status["consume"] == '1'),
             playlist=int(status["playlist"]),
             playlistlength=int(status["playlistlength"]),
             mixrampdb=float(status["mixrampdb"]),
             state=str(status["state"]),
-            playing=(not status["state"] == "pause"),
+            playing=status["state"] == "play",
         )
 
 
