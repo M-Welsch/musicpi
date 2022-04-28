@@ -23,6 +23,7 @@ class MusicPi:
         self._mpd = Mpd(cfg.get("mpd", {}))
 
     def start(self) -> None:
+        self._hmi.start()
         menu = Menu()
         while True:
             if menu.state == "songinfo":

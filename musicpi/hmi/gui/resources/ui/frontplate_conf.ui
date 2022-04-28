@@ -28,7 +28,7 @@
       <widget class="QWidget" name="widget_4" native="true">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QGraphicsView" name="graphicsView">
+         <widget class="QGraphicsView" name="gV_display">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -57,7 +57,7 @@
       <widget class="QWidget" name="widget_3" native="true">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QCheckBox" name="checkBox">
+         <widget class="QCheckBox" name="cB_led">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -80,21 +80,21 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="pB_cw">
              <property name="text">
               <string>cw</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_2">
+            <widget class="QPushButton" name="pB_push">
              <property name="text">
               <string>push</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_3">
+            <widget class="QPushButton" name="pB_ccw">
              <property name="text">
               <string>ccw</string>
              </property>
@@ -104,7 +104,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_4">
+         <widget class="QPushButton" name="pB_button">
           <property name="text">
            <string>Button</string>
           </property>
@@ -122,7 +122,7 @@
      <x>0</x>
      <y>0</y>
      <width>414</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

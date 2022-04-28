@@ -2,7 +2,7 @@ from subprocess import PIPE, Popen
 
 if __name__ == "__main__":
     p = Popen(
-        "pyside2-rcc resources.qrc -o resources_rc.py".split(),
+        "pyside6-rcc resources.qrc -o resources_rc.py".split(),
         shell=False,
         stderr=PIPE,
         stdout=PIPE,

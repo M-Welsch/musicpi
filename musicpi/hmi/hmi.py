@@ -2,6 +2,9 @@ from PIL import Image, ImageDraw
 
 
 class Hmi:
+    def start(self) -> None:
+        raise RuntimeError("implement start-method in the respective hmi subclass!")
+
     def show_on_display(self, image: Image) -> None:
         raise RuntimeError("implement start-method in the respective hmi subclass!")
 

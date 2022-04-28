@@ -13,6 +13,9 @@ class HmiArm(Hmi):
         self._encoder = RotaryEncoder()
         self._display = Display().dis
 
+    def start(self) -> None:
+        ...
+
     @property
     def display(self) -> ImageDraw.Draw:
         return self._display
