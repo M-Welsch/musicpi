@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="ui">
+    <file alias="frontplate_conf.ui">ui/frontplate_conf.ui</file>
+  </qresource>
+</RCC>
