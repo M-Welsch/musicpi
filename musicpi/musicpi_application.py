@@ -1,8 +1,9 @@
+from enum import Enum
 from pathlib import Path
 from time import sleep
-from enum import Enum
-from super_state_machine import machines
+
 from PIL import Image, ImageDraw, ImageFont
+from super_state_machine import machines
 
 from musicpi import Mpd, SongInfo, Status
 from musicpi.hmi.hmi import Hmi
@@ -24,7 +25,7 @@ class MusicPi:
     def start(self) -> None:
         menu = Menu()
         while True:
-            if menu.state == 'songinfo':
+            if menu.state == "songinfo":
                 self.visualize_current_song()
             if self._hmi.button.pressed():
                 self._mpd.pause_play()
@@ -89,7 +90,6 @@ class SongVisualisation:
 
 
 class Menu(machines.StateMachine):
-
     class States(Enum):
         SONGINFO = "songinfo"
         MAIN_MENU = "main_menu"
@@ -100,21 +100,21 @@ class Menu(machines.StateMachine):
         CMD_SHUTDOWN = "cmd_shutdown"
 
     class Meta:
-        initial_state = 'songinfo'
+        initial_state = "songinfo"
         transitions = {
-            'songinfo': ['main_menu'],
-            'main_menu': ['cmd_nextsong', "submenu_sys_stats", "submenu_bt_stats", "cmd_update_db", "cmd_shutdown"],
-            'cmd_nextsong': ['main_menu'],
-            'submenu_sys_stats': ['songinfo'],
-            'submenu_bt_stats': ['songinfo'],
-            'cmd_update_db': ['songinfo']
+            "songinfo": ["main_menu"],
+            "main_menu": ["cmd_nextsong", "submenu_sys_stats", "submenu_bt_stats", "cmd_update_db", "cmd_shutdown"],
+            "cmd_nextsong": ["main_menu"],
+            "submenu_sys_stats": ["songinfo"],
+            "submenu_bt_stats": ["songinfo"],
+            "cmd_update_db": ["songinfo"],
         }
         named_transisitions = [
-            ('open_main_menu', 'main_menu', ['songinfo']),
-            ('open_submenu_sys_stats', 'submenu_sys_stats'),
-            ('open_submenu_bt_stats', 'submenu_bt_stats'),
-            ('close_menu', 'songinfo'),
-            ('call_cmd_nextsong', 'cmd_nextsong'),
-            ('call_cmd_update_db', 'cmd_update_db'),
-            ('call_cmd_shutdown', 'cmd_shutdown')
+            ("open_main_menu", "main_menu", ["songinfo"]),
+            ("open_submenu_sys_stats", "submenu_sys_stats"),
+            ("open_submenu_bt_stats", "submenu_bt_stats"),
+            ("close_menu", "songinfo"),
+            ("call_cmd_nextsong", "cmd_nextsong"),
+            ("call_cmd_update_db", "cmd_update_db"),
+            ("call_cmd_shutdown", "cmd_shutdown"),
         ]

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import logging
+import socket
 from dataclasses import dataclass
 from pathlib import Path
+from time import sleep
 from types import TracebackType
 from typing import List, Optional, Type, Union
 
@@ -77,10 +79,10 @@ class Status:
         status = client.status()
         return cls(
             volume=int(status.get("volume", 0)),
-            repeat=bool(status["repeat"] == '1'),
-            random=bool(status["random"] == '1'),
-            single=bool(status["single"] == '1'),
-            consume=bool(status["consume"] == '1'),
+            repeat=bool(status["repeat"] == "1"),
+            random=bool(status["random"] == "1"),
+            single=bool(status["single"] == "1"),
+            consume=bool(status["consume"] == "1"),
             playlist=int(status["playlist"]),
             playlistlength=int(status["playlistlength"]),
             mixrampdb=float(status["mixrampdb"]),
@@ -141,7 +143,12 @@ class MpdWrapper:
         self._client.disconnect()
 
     def connect(self) -> None:
-        self._client.connect(host=self._conn_params.host, port=self._conn_params.port)
+        try:
+            self._client.connect(host=self._conn_params.host, port=self._conn_params.port)
+        except socket.timeout:
+            LOG.warning("Couldn't connect to mpd. Retrying in 1s")
+            sleep(1)
+            self.connect()
 
 
 class Mpd:
@@ -223,11 +230,11 @@ class Mpd:
 
     def resume(self) -> None:
         with self._mpd_wrapper as client:
-            client.pause('0')
+            client.pause("0")
 
     def pause(self) -> None:
         with self._mpd_wrapper as client:
-            client.pause('1')
+            client.pause("1")
 
     def pause_play(self) -> None:
         if self.status().playing:

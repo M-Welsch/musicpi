@@ -27,6 +27,7 @@ create_service_file () {
   echo "creating service file in $servicefile_location"
   echo '[Unit]
 Description="HMI for musicpi"
+After=syslog.target network.target mpd.service
 
 [Service]
 User=max
