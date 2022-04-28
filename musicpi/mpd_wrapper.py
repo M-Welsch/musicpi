@@ -220,3 +220,17 @@ class Mpd:
     def current_song(self) -> SongInfo:
         with self._mpd_wrapper as client:
             return SongInfo.from_client(client)
+
+    def resume(self) -> None:
+        with self._mpd_wrapper as client:
+            client.pause('0')
+
+    def pause(self) -> None:
+        with self._mpd_wrapper as client:
+            client.pause('1')
+
+    def pause_play(self) -> None:
+        if self.status().playing:
+            self.pause()
+        else:
+            self.resume()

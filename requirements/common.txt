@@ -1,0 +1,6 @@
+python-mpd2
+pillow
+pre-commit
+pytest
+pytest-mock
+super_state_machine

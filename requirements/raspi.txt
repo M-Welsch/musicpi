@@ -1,0 +1,6 @@
+-r common.txt
+RPi.GPIO
+smbus2
+luma.core
+luma.oled
+Encoder

@@ -1,7 +1,7 @@
 from pathlib import Path
 from time import sleep
-
-from luma.core.render import canvas
+from enum import Enum
+from super_state_machine import machines
 from PIL import Image, ImageDraw, ImageFont
 
 from musicpi import Mpd, SongInfo, Status
@@ -22,9 +22,20 @@ class MusicPi:
         self._mpd = Mpd(cfg.get("mpd", {}))
 
     def start(self) -> None:
+        menu = Menu()
         while True:
-            self.visualize_current_song()
-            sleep(0.2)
+            if menu.state == 'songinfo':
+                self.visualize_current_song()
+            if self._hmi.button.pressed():
+                self._mpd.pause_play()
+            self.set_led_to_playstatus()
+            sleep(0.1)
+
+    def set_led_to_playstatus(self) -> None:
+        if self._mpd.status().playing:
+            self._hmi.led.on()
+        else:
+            self._hmi.led.off()
 
     def visualize_current_song(self) -> None:
         song_info: SongInfo = self._mpd.current_song()
@@ -32,7 +43,7 @@ class MusicPi:
         fnt = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 9)
         display_content = Image.new(mode="1", size=(128, 64), color=0)
         canvas = ImageDraw.Draw(display_content)
-        visualisation = Visualisation(display_content, status, song_info)
+        visualisation = SongVisualisation(display_content, status, song_info)
         visualisation.display_status()
         if song_info.title:
             ...
@@ -41,7 +52,7 @@ class MusicPi:
         self._hmi.show_on_display(display_content)
 
 
-class Visualisation:
+class SongVisualisation:
     def __init__(self, display_content: Image, status: Status, song_info: SongInfo) -> None:
         self._display_content = display_content
         self._status: Status = status
@@ -54,6 +65,7 @@ class Visualisation:
         self._display_play_status()
         self._display_repeat()
         self._display_random()
+        self._display_playlist_position()
 
     def _display_song_info(self) -> None:
         self._canvas.text((0, 11), self._song_info.artist, fill="white", font=self._font)
@@ -69,4 +81,40 @@ class Visualisation:
         self._display_content.paste(icon_random if self._status.random else icon_no_random, (32, 48))
 
     def _display_playlist_position(self) -> None:
-        ...
+        try:
+            pos_string = f"({self._song_info.id}/{self._status.playlistlength})"
+        except KeyError:
+            pos_string = "(N/A)"
+        self._canvas.text((48, 48), text=pos_string, fill="white", font=self._font)
+
+
+class Menu(machines.StateMachine):
+
+    class States(Enum):
+        SONGINFO = "songinfo"
+        MAIN_MENU = "main_menu"
+        CMD_NEXTSONG = "cmd_nextsong"
+        SUBMENU_SYS_STATS = "submenu_sys_stats"
+        SUBMENU_BT_STATS = "submenu_bt_stats"
+        CMD_UPDATE_DB = "cmd_update_db"
+        CMD_SHUTDOWN = "cmd_shutdown"
+
+    class Meta:
+        initial_state = 'songinfo'
+        transitions = {
+            'songinfo': ['main_menu'],
+            'main_menu': ['cmd_nextsong', "submenu_sys_stats", "submenu_bt_stats", "cmd_update_db", "cmd_shutdown"],
+            'cmd_nextsong': ['main_menu'],
+            'submenu_sys_stats': ['songinfo'],
+            'submenu_bt_stats': ['songinfo'],
+            'cmd_update_db': ['songinfo']
+        }
+        named_transisitions = [
+            ('open_main_menu', 'main_menu', ['songinfo']),
+            ('open_submenu_sys_stats', 'submenu_sys_stats'),
+            ('open_submenu_bt_stats', 'submenu_bt_stats'),
+            ('close_menu', 'songinfo'),
+            ('call_cmd_nextsong', 'cmd_nextsong'),
+            ('call_cmd_update_db', 'cmd_update_db'),
+            ('call_cmd_shutdown', 'cmd_shutdown')
+        ]
