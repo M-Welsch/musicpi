@@ -1,3 +1,5 @@
+from time import sleep
+
 from luma.core.render import canvas
 from PIL import Image, ImageDraw
 from signalslot import Signal
@@ -15,7 +17,9 @@ class HmiArm(Hmi):
         self._display = Display().dis
 
     def start(self) -> None:
-        ...
+        while True:
+            self.trigger_repeated_event.emit()
+            sleep(0.1)
 
     @property
     def display(self) -> ImageDraw.Draw:

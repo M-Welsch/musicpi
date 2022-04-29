@@ -1,4 +1,5 @@
 import sys
+from typing import Callable
 
 from PIL import Image, ImageDraw
 from PySide6.QtCore import QCoreApplication, Qt
@@ -26,6 +27,10 @@ class MockupGui(QApplication):
         self._main_window.show()
 
     @property
+    def on_update_display(self) -> Callable:
+        return self._main_window.update_display  # type: ignore  # returning a slot
+
+    @property
     def button_pressed(self) -> Signal:
         return self._main_window.sig_pressed
 
@@ -39,6 +44,9 @@ class HmiX86X64(Hmi):
 
     def __init__(self) -> None:
         self._app = MockupGui()
+
+    def connect_signals(self) -> None:
+        self.update_display.connect(self._app.on_update_display)
 
     def start(self) -> None:
         QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)

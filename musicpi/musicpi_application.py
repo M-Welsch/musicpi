@@ -1,8 +1,10 @@
 from enum import Enum
 from pathlib import Path
 from time import sleep
+from typing import Callable
 
 from PIL import Image, ImageDraw, ImageFont
+from signalslot import Signal
 from super_state_machine import machines
 
 from musicpi import Mpd, SongInfo, Status
@@ -22,32 +24,34 @@ class MusicPi:
         self._hmi = hmi
         self._cfg = cfg
         self._mpd = Mpd(cfg.get("mpd", {}))
-        self._connect_signals()
+        self._menu_visualisation = MenuVisualisation(menu_leave_hook=self._connect_signals_to_song_visualisation)
+        self._connect_common_signals()
+        self._connect_signals_to_song_visualisation()
+        self._hmi.start()
 
-    def _connect_signals(self) -> None:
+    def _connect_common_signals(self) -> None:
+        self._hmi.trigger_repeated_event.connect(self.visualize_display_content)
+
+    def _connect_signals_to_song_visualisation(self) -> None:
+        self._hmi.button_pressed.disconnect(self._menu_visualisation.on_button_pressed)
         self._hmi.button_pressed.connect(self.on_button_pressed)
+        self._hmi.encoder_value_changed.disconnect(self._menu_visualisation.encoder_value_changed)
         self._hmi.encoder_value_changed.connect(self.encoder_value_changed)
 
-    def _disconnect_signals(self) -> None:
+    def _connect_signals_to_menu_visualisation(self) -> None:
         self._hmi.button_pressed.disconnect(self.on_button_pressed)
+        self._hmi.button_pressed.connect(self._menu_visualisation.on_button_pressed)
         self._hmi.encoder_value_changed.disconnect(self.encoder_value_changed)
-
-    def start(self) -> None:
-        self._hmi.start()
-        menu = Menu()
-        while True:
-            if menu.state == "songinfo":
-                self.visualize_current_song()
-            self.set_led_to_playstatus()
-            sleep(0.1)
+        self._hmi.encoder_value_changed.connect(self._menu_visualisation.encoder_value_changed)
 
     def on_button_pressed(self, button, *args, **kwargs):  # type: ignore
-        self._disconnect_signals()
         button: Buttons
         print(f"button pressed {button.value}")
         if button == Buttons.PUSHPUTTON:
             self._mpd.pause_play()
-        self._connect_signals()
+        if button == Buttons.ENCODER_BUTTON:
+            self._menu_visualisation.enter_menu()
+            self._connect_signals_to_menu_visualisation()
 
     def encoder_value_changed(self, amount, *args, **kwargs):  # type: ignore
         print(f"enc val changed by {amount}")
@@ -57,6 +61,17 @@ class MusicPi:
             self._hmi.led.on()
         else:
             self._hmi.led.off()
+
+    def visualize_display_content(self, *args, **kwargs):  # type: ignore
+        if self._menu_visualisation:
+            self.visualize_menu()
+        else:
+            self.visualize_current_song()
+        self.set_led_to_playstatus()
+
+    def visualize_menu(self) -> None:
+        print("bi")
+        self._hmi.show_on_display(self._menu_visualisation.display_content)
 
     def visualize_current_song(self) -> None:
         song_info: SongInfo = self._mpd.current_song()
@@ -107,6 +122,38 @@ class SongVisualisation:
         except KeyError:
             pos_string = "(N/A)"
         self._canvas.text((48, 48), text=pos_string, fill="white", font=self._font)
+
+
+class MenuVisualisation:
+    def __init__(self, menu_leave_hook: Callable) -> None:
+        self._menu = Menu()
+        self._menu_leave_hook = menu_leave_hook
+        self._fnt = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 9)
+        self._display_content = Image.new(mode="1", size=(128, 64), color=0)
+
+    def on_button_pressed(self, button, *args, **kwargs):  # type: ignore
+        if button == Buttons.PUSHPUTTON and self._menu.state == "main_menu":
+            self.exit_menu()
+
+    def enter_menu(self) -> None:
+        self._menu.set_main_menu()
+        canvas = ImageDraw.Draw(self._display_content)
+        canvas.text((0, 0), "Skip Song", fill="white", font=self._fnt)
+
+    def exit_menu(self) -> None:
+        self._menu_leave_hook()  # map disconnect signals
+        # show song info again
+
+    def encoder_value_changed(self, amount, *args, **kwargs):  # type: ignore
+        ...
+
+    @property
+    def display_content(self) -> Image:
+        return self._display_content
+
+    @property
+    def active(self) -> bool:
+        return not self._menu.state == "song_info"
 
 
 class Menu(machines.StateMachine):

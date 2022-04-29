@@ -1,3 +1,5 @@
+from PIL import Image
+from PySide6 import QtWidgets
 from PySide6.QtCore import QFile
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QCheckBox, QGraphicsView, QMainWindow, QPushButton, QWidget
@@ -42,6 +44,15 @@ class MockupGuiWindow(QMainWindow):
         self.setWindowTitle(self._ui.windowTitle())
         self.resize(self._ui.size())
         self.setWindowIcon(self._ui.windowIcon())
+
+    def update_display(self, image, *args, **kwargs):  # type: ignore
+        print("show")
+        image: Image.Image
+        pix = image.toqpixmap()
+        item = QtWidgets.QGraphicsPixmapItem(pix)
+        scene = QtWidgets.QGraphicsScene(self)
+        scene.addItem(item)
+        self.gV_display.setScene(scene)
 
     def slot_pb_cw_clicked(self) -> None:
         self.val_changed.emit(amount=1)

@@ -3,6 +3,8 @@ from signalslot import Signal
 
 
 class Hmi:
+    trigger_repeated_event = Signal()
+
     def start(self) -> None:
         raise RuntimeError("implement start-method in the respective hmi subclass!")
 

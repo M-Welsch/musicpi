@@ -124,7 +124,8 @@ class Encoder(object):
             self.pos -= 2
 
         if (not self.pos == self._pos_old) and (time() - self.last_change > 0.2):
-            self.val_changed.emit(amount=(self.pos - self._pos_old))
+            amount = 1 if (self.pos - self._pos_old) > 0 else -1
+            self.val_changed.emit(amount=amount)
             self._pos_old = self.pos
             self.last_change = time()
 
@@ -154,12 +155,12 @@ class Button:
             callback=self.on_enc_pressed,
         )
 
-    def on_pressed(self, channel) -> None:
+    def on_pressed(self, channel: int) -> None:
         if time() - self.last_press > 0.2:
             self.sig_pressed.emit(button=Buttons.PUSHPUTTON)
             self.last_press = time()
 
-    def on_enc_pressed(self, channel) -> None:
+    def on_enc_pressed(self, channel: int) -> None:
         if time() - self.last_press > 0.2:
             self.sig_pressed.emit(button=Buttons.ENCODER_BUTTON)
             self.last_press = time()

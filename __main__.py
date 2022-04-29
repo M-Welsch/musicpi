@@ -39,4 +39,4 @@ if __name__ == "__main__":
         h: Hmi = HmiX86X64()  # type: ignore
     else:
         raise ValueError("I don't know who I am! Problably the hardware platform is not supported (yet)!")
-    MusicPi(hmi=h, cfg=cfg.get("logic", {})).start()
+    MusicPi(hmi=h, cfg=cfg.get("logic", {}))
