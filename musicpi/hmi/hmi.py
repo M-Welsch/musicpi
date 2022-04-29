@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw
+from signalslot import Signal
 
 
 class Hmi:
@@ -17,9 +18,9 @@ class Hmi:
         ...
 
     @property
-    def button(self):  # type: ignore
-        ...
+    def button_pressed(self) -> Signal:
+        return Signal()
 
     @property
-    def encoder(self):  # type: ignore
-        ...
+    def encoder_value_changed(self) -> Signal:
+        return Signal()

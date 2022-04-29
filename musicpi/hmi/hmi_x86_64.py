@@ -9,12 +9,6 @@ from musicpi.hmi.gui.view.mockup_gui_window import MockupGuiWindow
 from musicpi.hmi.hmi import Hmi
 
 
-class Button:
-    @staticmethod
-    def pressed() -> bool:
-        return False
-
-
 class Led:
     @staticmethod
     def on() -> None:
@@ -25,31 +19,42 @@ class Led:
         ...
 
 
-class HmiX86X64(Hmi):
-    update_display = Signal(args=["image"])
-
-    def __init__(self) -> None:
-        ...
-
-    def start(self) -> None:
-        QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
-        app = MockupGui()
-        sys.exit(app.exec())
-
-    def show_on_display(self, image: Image) -> None:
-        self.update_display.emit(image=image)
-
-    @property
-    def button(self) -> Button:
-        return Button()
-
-    @property
-    def led(self) -> Led:
-        return Led()
-
-
 class MockupGui(QApplication):
     def __init__(self) -> None:
         super().__init__()
         self._main_window: MockupGuiWindow = MockupGuiWindow()
         self._main_window.show()
+
+    @property
+    def button_pressed(self) -> Signal:
+        return self._main_window.sig_pressed
+
+    @property
+    def encoder_value_changed(self) -> Signal:
+        return self._main_window.val_changed
+
+
+class HmiX86X64(Hmi):
+    update_display = Signal(args=["image"])
+
+    def __init__(self) -> None:
+        self._app = MockupGui()
+
+    def start(self) -> None:
+        QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+        sys.exit(self._app.exec())
+
+    def show_on_display(self, image: Image) -> None:
+        self.update_display.emit(image=image)
+
+    @property
+    def button_pressed(self) -> Signal:
+        return self._app.button_pressed
+
+    @property
+    def encoder_value_changed(self) -> Signal:
+        return self._app.encoder_value_changed
+
+    @property
+    def led(self) -> Led:
+        return Led()

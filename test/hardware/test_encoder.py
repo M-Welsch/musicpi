@@ -4,12 +4,12 @@ from time import sleep
 
 import pytest
 
-from musicpi.hardware.pin_interface import RotaryEncoder
+from musicpi.hardware.pin_interface import Encoder
 
 
 @pytest.mark.onraspi
 def test_encoder_readout() -> None:
-    encoder = RotaryEncoder()
+    encoder = Encoder()
     try:
         while True:
             print(encoder.read())

@@ -1,11 +1,16 @@
 from PySide6.QtCore import QFile
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QCheckBox, QGraphicsView, QMainWindow, QPushButton, QWidget
+from signalslot import Signal
 
+from musicpi.hardware.buttons import Buttons
 from musicpi.hmi.gui.resources import resources_rc  # needs to be here for self._load_ui(":/ui/main_window.ui") to work
 
 
 class MockupGuiWindow(QMainWindow):
+    sig_pressed = Signal(args=["button"])
+    val_changed = Signal(args=["amount"])
+
     def __init__(self, parent: QWidget = None):
         super().__init__(parent=parent)
         self._ui = self._load_ui(":/ui/frontplate_conf.ui")
@@ -39,13 +44,13 @@ class MockupGuiWindow(QMainWindow):
         self.setWindowIcon(self._ui.windowIcon())
 
     def slot_pb_cw_clicked(self) -> None:
-        print("cw clicked!")
+        self.val_changed.emit(amount=1)
 
     def slot_pb_ccw_clicked(self) -> None:
-        ...
+        self.val_changed.emit(amount=-1)
 
     def slot_pb_push_clicked(self) -> None:
-        ...
+        self.sig_pressed.emit(button=Buttons.ENCODER_BUTTON)
 
     def slot_pb_button_clicked(self) -> None:
-        ...
+        self.sig_pressed.emit(button=Buttons.PUSHPUTTON)

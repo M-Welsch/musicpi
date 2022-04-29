@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 from super_state_machine import machines
 
 from musicpi import Mpd, SongInfo, Status
+from musicpi.hardware.buttons import Buttons
 from musicpi.hmi.hmi import Hmi
 
 icon_pause = Image.open(Path("musicpi/hmi/icons/pause.png"))
@@ -21,6 +22,11 @@ class MusicPi:
         self._hmi = hmi
         self._cfg = cfg
         self._mpd = Mpd(cfg.get("mpd", {}))
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
+        self._hmi.button_pressed.connect(self.on_button_pressed)
+        self._hmi.encoder_value_changed.connect(self.encoder_value_changed)
 
     def start(self) -> None:
         self._hmi.start()
@@ -28,10 +34,17 @@ class MusicPi:
         while True:
             if menu.state == "songinfo":
                 self.visualize_current_song()
-            if self._hmi.button.pressed():
-                self._mpd.pause_play()
             self.set_led_to_playstatus()
             sleep(0.1)
+
+    def on_button_pressed(self, button, *args, **kwargs):  # type: ignore
+        button: Buttons
+        print(f"button pressed {button.value}")
+        if button == Buttons.PUSHPUTTON:
+            self._mpd.pause_play()
+
+    def encoder_value_changed(self, amount, *args, **kwargs):  # type: ignore
+        print(f"enc val changed by {amount}")
 
     def set_led_to_playstatus(self) -> None:
         if self._mpd.status().playing:

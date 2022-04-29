@@ -18,6 +18,8 @@ from pathlib import Path
 
 import RPi.GPIO as GPIO
 
+from musicpi.hardware.buttons import Buttons
+
 LOG = logging.getLogger(Path(__file__).name)
 
 
@@ -133,7 +135,7 @@ class Encoder(object):
 
 
 class Button:
-    sig_pressed = Signal()
+    sig_pressed = Signal(args=["button"])
 
     def __init__(self) -> None:
         self._pin_interface = PinInterface.global_instance()
@@ -142,7 +144,14 @@ class Button:
     def _setup_pins(self) -> None:
         for button in Pins.buttons.values():
             GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            GPIO.add_event_detect(button, GPIO.FALLING, callback=lambda _: self.sig_pressed.emit())
+        GPIO.add_event_detect(
+            Pins.buttons["button"], GPIO.FALLING, callback=lambda _: self.sig_pressed.emit(button=Buttons.PUSHPUTTON)
+        )
+        GPIO.add_event_detect(
+            Pins.buttons["enc_sw"],
+            GPIO.FALLING,
+            callback=lambda _: self.sig_pressed.emit(button=Buttons.ENCODER_BUTTON),
+        )
 
     def pressed(self) -> bool:
         return self._pin_interface.button_pressed()
