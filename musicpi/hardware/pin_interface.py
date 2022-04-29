@@ -68,6 +68,7 @@ class PinInterface:
 
 class Encoder(object):
     val_changed = Signal()
+    last_change: float = 0
     """
     Encoder class allows to work with rotary encoder
     which connected via two pin A and B.
@@ -122,9 +123,10 @@ class Encoder(object):
         elif state == 6 or state == 9:
             self.pos -= 2
 
-        if not self.pos == self._pos_old:
-            self.val_changed.emit()
+        if (not self.pos == self._pos_old) and (time() - self.last_change > 0.2):
+            self.val_changed.emit(amount=(self.pos - self._pos_old))
             self._pos_old = self.pos
+            self.last_change = time()
 
     """
     read() simply returns the current position of the rotary encoder.
@@ -149,12 +151,17 @@ class Button:
         GPIO.add_event_detect(
             Pins.buttons["enc_sw"],
             GPIO.FALLING,
-            callback=lambda _: self.sig_pressed.emit(button=Buttons.ENCODER_BUTTON),
+            callback=self.on_enc_pressed,
         )
 
-    def on_pressed(self) -> None:
-        if self.last_press - time() > 0.2:
+    def on_pressed(self, channel) -> None:
+        if time() - self.last_press > 0.2:
             self.sig_pressed.emit(button=Buttons.PUSHPUTTON)
+            self.last_press = time()
+
+    def on_enc_pressed(self, channel) -> None:
+        if time() - self.last_press > 0.2:
+            self.sig_pressed.emit(button=Buttons.ENCODER_BUTTON)
             self.last_press = time()
 
     def pressed(self) -> bool:
