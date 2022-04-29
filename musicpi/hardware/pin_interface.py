@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from platform import machine
-from time import sleep
+from time import sleep, time
 from typing import Any, Optional
 
 from signalslot import Signal
@@ -136,6 +136,7 @@ class Encoder(object):
 
 class Button:
     sig_pressed = Signal(args=["button"])
+    last_press: float = 0
 
     def __init__(self) -> None:
         self._pin_interface = PinInterface.global_instance()
@@ -144,14 +145,17 @@ class Button:
     def _setup_pins(self) -> None:
         for button in Pins.buttons.values():
             GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(
-            Pins.buttons["button"], GPIO.FALLING, callback=lambda _: self.sig_pressed.emit(button=Buttons.PUSHPUTTON)
-        )
+        GPIO.add_event_detect(Pins.buttons["button"], GPIO.FALLING, callback=self.on_pressed)
         GPIO.add_event_detect(
             Pins.buttons["enc_sw"],
             GPIO.FALLING,
             callback=lambda _: self.sig_pressed.emit(button=Buttons.ENCODER_BUTTON),
         )
+
+    def on_pressed(self) -> None:
+        if self.last_press - time() > 0.2:
+            self.sig_pressed.emit(button=Buttons.PUSHPUTTON)
+            self.last_press = time()
 
     def pressed(self) -> bool:
         return self._pin_interface.button_pressed()

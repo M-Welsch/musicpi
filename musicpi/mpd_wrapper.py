@@ -128,11 +128,16 @@ def setup_client(conn_params: ConnectionParams) -> MPDClient:
 
 
 class MpdWrapper:
+    lock: bool = False
+
     def __init__(self, cfg_mpd: dict):
         self._conn_params = ConnectionParams.from_cfg(cfg_mpd)
         self._client: MPDClient = setup_client(self._conn_params)
 
     def __enter__(self) -> MPDClient:
+        while self.lock:
+            sleep(0.1)
+        self.lock = True
         self.connect()
         return self._client
 
@@ -141,6 +146,7 @@ class MpdWrapper:
     ) -> None:
         self._client.close()
         self._client.disconnect()
+        self.lock = False
 
     def connect(self) -> None:
         try:
@@ -149,6 +155,8 @@ class MpdWrapper:
             LOG.warning("Couldn't connect to mpd. Retrying in 1s")
             sleep(1)
             self.connect()
+        except ConnectionError:
+            LOG.warning("already connected")
 
 
 class Mpd:

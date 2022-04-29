@@ -28,6 +28,10 @@ class MusicPi:
         self._hmi.button_pressed.connect(self.on_button_pressed)
         self._hmi.encoder_value_changed.connect(self.encoder_value_changed)
 
+    def _disconnect_signals(self) -> None:
+        self._hmi.button_pressed.disconnect(self.on_button_pressed)
+        self._hmi.encoder_value_changed.disconnect(self.encoder_value_changed)
+
     def start(self) -> None:
         self._hmi.start()
         menu = Menu()
@@ -38,10 +42,12 @@ class MusicPi:
             sleep(0.1)
 
     def on_button_pressed(self, button, *args, **kwargs):  # type: ignore
+        self._disconnect_signals()
         button: Buttons
         print(f"button pressed {button.value}")
         if button == Buttons.PUSHPUTTON:
             self._mpd.pause_play()
+        self._connect_signals()
 
     def encoder_value_changed(self, amount, *args, **kwargs):  # type: ignore
         print(f"enc val changed by {amount}")
