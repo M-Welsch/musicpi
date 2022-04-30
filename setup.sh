@@ -43,8 +43,21 @@ WantedBy=multi-user.target
   sudo systemctl daemon-reload
 }
 
+install_mympd () {
+  git clone https://github.com/jcorporation/myMPD.git
+  cd myMPD
+  sudo ./build.sh installdeps
+  ./build.sh release
+  sudo ./build.sh install
+  cd ~
+  sudo systemctl daemon-reload
+  sudo systemctl enable mympd
+  sudo systemctl start mympd
+}
+
 install_required_packages
 install_bluetooth_speaker_emulation
+install_mympd
 configure_mpd
 create_service_file
 enable_i2c
