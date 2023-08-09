@@ -1,3 +1,5 @@
+import logging
+import subprocess
 from enum import Enum
 from pathlib import Path
 from time import sleep
@@ -8,12 +10,22 @@ from super_state_machine import machines
 from musicpi import Mpd, SongInfo, Status
 from musicpi.hmi.hmi import Hmi
 
+LOG = logging.getLogger(__name__)
+
 icon_pause = Image.open(Path("musicpi/hmi/icons/pause.png"))
 icon_play = Image.open(Path("musicpi/hmi/icons/play.png"))
 icon_repeat = Image.open(Path("musicpi/hmi/icons/repeat.png"))
 icon_no_repeat = Image.open(Path("musicpi/hmi/icons/no_repeat.png"))
 icon_random = Image.open(Path("musicpi/hmi/icons/random.png"))
 icon_no_random = Image.open(Path("musicpi/hmi/icons/no_random.png"))
+
+
+def mount_multimedia_if_necessary():
+    if not Path("/home/max/Multimedia").is_mount():
+        try:
+            subprocess.call(["mount", "/home/max/Multimedia"], timeout=10)
+        except subprocess.TimeoutExpired:
+            LOG.error("couldn't mount Multimedia within 10s")
 
 
 class MusicPi:
@@ -30,6 +42,7 @@ class MusicPi:
             if self._hmi.button.pressed():
                 self._mpd.pause_play()
             self.set_led_to_playstatus()
+            mount_multimedia_if_necessary()
             sleep(0.1)
 
     def set_led_to_playstatus(self) -> None:

@@ -43,6 +43,13 @@ WantedBy=multi-user.target
   sudo systemctl daemon-reload
 }
 
+edit_fstab () {
+  echo "//192.168.0.2/Multimedia /home/max/Multimedia cifs credentials=/etc/win-credentials,uid=1000,gid=1000,user,rw,vers=3.0 0 0" | tee "/etc/fstab" > /dev/null
+  echo "username=max
+password
+domain=WORKGROUP" | tee /etc/win-credentials > /dev/null
+}
+
 install_mympd () {
   git clone https://github.com/jcorporation/myMPD.git
   cd myMPD
@@ -59,6 +66,7 @@ install_required_packages
 install_bluetooth_speaker_emulation
 install_mympd
 configure_mpd
+edit_fstab
 create_service_file
 enable_i2c
 
