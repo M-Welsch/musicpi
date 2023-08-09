@@ -43,11 +43,12 @@ WantedBy=multi-user.target
   sudo systemctl daemon-reload
 }
 
-edit_fstab () {
+create_credentials_file () {
   echo "//192.168.0.2/Multimedia /home/max/Multimedia cifs credentials=/etc/win-credentials,uid=1000,gid=1000,user,rw,vers=3.0 0 0" | tee "/etc/fstab" > /dev/null
   echo "username=max
 password
 domain=WORKGROUP" | tee /etc/win-credentials > /dev/null
+  echo "edit credentials file!! Password is empty"
 }
 
 install_mympd () {
@@ -62,12 +63,17 @@ install_mympd () {
   sudo systemctl start mympd
 }
 
+edit_mpd_service_file () {
+  sudo sed s'/After=network.target sound.target/After=network.target sound.target home-max-Multimedia.mount/' /usr/lib/systemd/system/mpd.service -i
+}
+
 install_required_packages
 install_bluetooth_speaker_emulation
 install_mympd
 configure_mpd
-edit_fstab
+create_credentials_file
 create_service_file
+edit_mpd_service_file
 enable_i2c
 
 echo "please reboot before use."

@@ -42,7 +42,7 @@ class MusicPi:
             if self._hmi.button.pressed():
                 self._mpd.pause_play()
             self.set_led_to_playstatus()
-            mount_multimedia_if_necessary()
+            # mount_multimedia_if_necessary()
             sleep(0.1)
 
     def set_led_to_playstatus(self) -> None:
